@@ -4,6 +4,7 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
 import org.generations.demo_security_spring.entitys.Producto;
+import org.generations.demo_security_spring.service.EmployeeService;
 import org.generations.demo_security_spring.service.ProductoService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,9 +21,11 @@ import java.util.Optional;
 public class ApiProductoController {
 
     ProductoService productoService;
+    EmployeeService employeeService;
 
-    public ApiProductoController(ProductoService productoService) {
+    public ApiProductoController(ProductoService productoService, EmployeeService employeeService) {
         this.productoService = productoService;
+        this.employeeService = employeeService;
     }
 
     @GetMapping("/{id}")
@@ -33,6 +36,12 @@ public class ApiProductoController {
             return new ResponseEntity<>(productoOptional.get(), HttpStatus.OK);
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+
+    @GetMapping("/employee/{id}")
+    public ResponseEntity<Employee> getEmployee(@PathVariable Long id) {
+        Employee employee = employeeService.getEmployee(id).get();
+        return new ResponseEntity<>(employee, HttpStatus.OK);
     }
 
     @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN') or isAnonymous()")

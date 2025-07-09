@@ -22,8 +22,10 @@ public class Producto {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @NotBlank(message="El nombre es obligatorio")
     private String nombre;
+
     @NotNull(message = "El precio es obligatorio")
     @Positive(message = "El precio debe ser mayor que cero")
     private double precio;

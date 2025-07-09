@@ -3,6 +3,8 @@ package org.generations.demo_security_spring.config;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -19,7 +21,11 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
+
+    private final EmployeeDetailsService employeeDetailsService;
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -37,38 +43,11 @@ public class SecurityConfig {
     }
 
     @Bean
-    public UserDetailsService userDetailsService() {
-        UserDetails user = User.builder()
-                .username("jose")
-                .password(passwordEncoder().encode("jose"))
-                .roles("USER")
-                .build();
-
-        UserDetails admin = User.builder()
-                .username("mario")
-                .password(passwordEncoder().encode("mario"))
-                .roles("ADMIN")
-                .build();
-
-        UserDetails admin1 = User.builder()
-                .username("alba")
-                .password(passwordEncoder().encode("alba"))
-                .roles("ADMIN")
-                .build();
-
-        UserDetails user2 = User.builder()
-                .username("patata")
-                .password(passwordEncoder().encode("patata"))
-                .roles("USER")
-                .build();
-
-        UserDetails user3 = User.builder()
-                .username("superpatata")
-                .password(passwordEncoder().encode("patata"))
-                .roles("USER")
-                .build();
-
-        return new InMemoryUserDetailsManager(user, admin, admin1, user2, user3);
+    public AuthenticationProvider authenticationProvider(){
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setUserDetailsService(employeeDetailsService);
+        provider.setPasswordEncoder(passwordEncoder());
+        return provider;
     }
 
 }
