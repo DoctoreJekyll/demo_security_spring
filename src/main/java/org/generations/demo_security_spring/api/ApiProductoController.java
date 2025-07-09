@@ -2,10 +2,12 @@ package org.generations.demo_security_spring.api;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
 import org.generations.demo_security_spring.entitys.Producto;
 import org.generations.demo_security_spring.service.ProductoService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -14,7 +16,7 @@ import java.util.Optional;
 @Slf4j
 @RestController
 @CrossOrigin(origins = "*")
-@RequestMapping("/api/producto")
+@RequestMapping("/api/v1/producto")
 public class ApiProductoController {
 
     ProductoService productoService;
@@ -24,6 +26,7 @@ public class ApiProductoController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN') or isAnonymous()")
     public ResponseEntity<Producto> findById(@PathVariable("id") long id) {
         Optional<Producto> productoOptional = productoService.findById(id);
         if (productoOptional.isPresent()) {
@@ -32,17 +35,20 @@ public class ApiProductoController {
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
+    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN') or isAnonymous()")
     @GetMapping
     public ResponseEntity<List<Producto>> findAll() {
         return new ResponseEntity<>(productoService.findAll(), HttpStatus.OK);
     }
 
+    @PreAuthorize("hasRole('ROLE_USER')")
     @PostMapping(consumes = "application/json")
     public ResponseEntity<Producto> create(@RequestBody Producto producto) {
         productoService.save(producto);
         return new ResponseEntity<>(producto, HttpStatus.CREATED);
     }
 
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PutMapping
     public ResponseEntity<Producto> update(@RequestBody Producto producto) {
         Optional<Producto> productoOptional = productoService.findById(producto.getId());
@@ -54,11 +60,12 @@ public class ApiProductoController {
         return new ResponseEntity<>(producto, HttpStatus.OK);
     }
 
-    @DeleteMapping
-    public ResponseEntity<Producto> delete(@RequestBody Producto producto) {
-        Optional<Producto> productoOptional = productoService.findById(producto.getId());
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Producto> delete(@PathVariable("id") long id) {
+        Optional<Producto> productoOptional = productoService.findById(id);
         if (productoOptional.isPresent()) {
-            productoService.deleteById(producto.getId());
+            productoService.deleteById(id);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
 
