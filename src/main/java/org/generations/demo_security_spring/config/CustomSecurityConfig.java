@@ -17,11 +17,10 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 @EnableMethodSecurity
 public class CustomSecurityConfig {
+    private final CustomAuthenticationProvider customAuthenticationProvider;
 
-    private final ExternalAuthService externalAuthService;
-
-    public CustomSecurityConfig(ExternalAuthService externalAuthService) {
-        this.externalAuthService = externalAuthService;
+    public CustomSecurityConfig(CustomAuthenticationProvider customAuthenticationProvider) {
+        this.customAuthenticationProvider = customAuthenticationProvider;
     }
 
     @Bean
@@ -31,14 +30,9 @@ public class CustomSecurityConfig {
                     authorizeRequests.requestMatchers("/api/v1/**").permitAll();
                     authorizeRequests.requestMatchers("/h2-console/**").permitAll();
                     authorizeRequests.anyRequest().authenticated();
-                }).authenticationProvider(customAuthenticationProvider())
+                }).authenticationProvider(customAuthenticationProvider)
                 .httpBasic(Customizer.withDefaults());
 
         return http.build();
-    }
-
-    @Bean
-    public CustomAuthenticationProvider customAuthenticationProvider() {
-        return new CustomAuthenticationProvider(externalAuthService);
     }
 }
