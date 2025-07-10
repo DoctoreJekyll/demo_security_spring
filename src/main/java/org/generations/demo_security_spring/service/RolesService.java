@@ -8,11 +8,11 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class RoleService{
+public class RolesService {
 
     private RolesRepository rolesRepository;
 
-    public RoleService(RolesRepository rolesRepository) {
+    public RolesService(RolesRepository rolesRepository) {
         this.rolesRepository = rolesRepository;
     }
 
