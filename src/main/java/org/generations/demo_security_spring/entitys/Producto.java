@@ -27,4 +27,5 @@ public class Producto {
     @NotNull(message = "El precio es obligatorio")
     @Positive(message = "El precio debe ser mayor que cero")
     private double precio;
+    private String sharkTicket;
 }
